@@ -1,0 +1,86 @@
+I am going to refactor my search script so that it is object oriented (so that it will be easier to extend), and then attempt to make it more efficient by converting it to cython code. I will also be taking a test-first approach and will employ automated testing with the pytest module. The standard library package for unit testing, unittest, seems inferior. I will use the included profiler, cProfile, for profiling the code. Finally, I will be trying out debuggers, ipdb and pudb.
+
+Problem statement:
+
+I need to search my .bib reference files for keywords in various fields. The previous solution was too slow and limited to searching predefined keywords. I would also like to be able to use simple logic in the creation of search terms.
+
+Requirements:
+
+The program should have a very simple and efficient user interface, as I use it often and need it to be quick. Because I use it often, it can rely on more commands that require me to remember them rather than have prompts with instructions or a GUI. So the input should be the bib files, which are stored in one directory, and a single set of command line arguments. The arguments should include which field to search, which terms to search in that field, and logical operators that allow these basic search terms to be combined. There will also need to be arguments that allow combinations of fields for each entry matching the search field to be displayed. The output will just be prints to the terminal of these matching fields.
+
+Analysis:
+
+What are the main objects here? I will need to have a custom parser for the command line arguments, as well as a parser for the bib files. I will probably be best off using regex, although that might make it difficult to improve on the code with cython.
+
+So instead of thinking of parser objects, I can have a search string object that has a parser method, and a bibliography which happens to be a bunch of .bib files stored in a single directory. I might also consider having a .bib file object. For the search string parser, if I use the state pattern, I will need to have an object for each state, although it seems like overkill when each word is used for something.
+
+How do I want the search string to look in memory? I am basically building a search function. First, some examples of what the string might look like:
+
+searchRefs keywords solvent dna model and not author cumberworth wong
+searchRefs journal nature or year 2013
+
+There will be conjunctions (and), disjunctions (or), and negation (not). Input will be field specifications, each with a list of terms, seperated by the logical operators. They will act between all the previous fields and the next field term list. I might eventually add brackets, but for now this will be sufficient. How will the bib files be dealt with? Perhaps with the state design pattern? But maybe that only makes sense if you want the whole thing to be represented in memory. I need to go into each file, look for the fields that are specified in the search string, test whether they contain the terms in each field term list, and then check the logical combination of the field lists. Probably a contaner of fields with each field having associated a regex or list of regex for the terms and a conditional function that tests the specified combination. As I move through the fields in the bib file I should be able to check whether they are in the fields specfied in the search string.
+
+Could I build this function with dectorators?
+
+def conjuction():
+    def wrapper(previous_terms, next_term):
+        if previous_terms() and next_term:
+            match = True
+        else:
+            match = False
+        return match
+    return wrapper
+
+def disjunction():
+    def wrapper(previous_terms, next_term):
+        if previous_terms() and next_term:
+            match = True
+        else:
+            match = False
+        return match
+    return wrapper
+
+def negation():
+    def wrapper():
+        if next_term 
+???
+
+def search_match(field_terms):
+    if field_terms:
+        match = True
+    else
+        match = False
+
+    return match
+    
+if operators:
+    for operator in operators:
+        if operator == 'and':
+            search_match = conjunction(search_match, next_term)
+            redfine previous terms and next term
+        elif operator == 'or':
+            search_match = disjunction(search_match, next_term)
+            redfine previous terms and next term
+        elif operator == 'not':
+            next_term = negation(next_term)
+        
+else:
+    pass
+
+no no no this a complete fuck up. It would probably be easiest without functions at all, just looping through and updating the previous_terms_match and next term based on the current operator. So this will be a method of the search string.
+
+I will start by doing it without regex.
+
+Where should the method that searches the bib file for the fields and terms be? It would have to be on the bibfile object. So what should it take as an argument? The search string object, or something from search string? I could be looping through the lines in the bib file and asking if the start of each one matches a field in the search string. The bib object methods should do all the work of parsing the files; if a searchstrign method is used, it should be presented with specific terms. Probably the work will most be done by bibfile methods, and it shoudl be presented with a list of fields each with a list of terms. It has to have them all at once otherise it will be very inneficient. So the interface of search string shoudl somehow present these things, unless you want to use a dictionary. I will probably use a dictionary as searchstrings way of storing this stuff. So iterating through the object will give both the name of the field and the list of terms. Alternatively, I could iterate through a list of fields, and then use them to access the lists (this more explicit way could be necessary for improving speed with cython).
+
+How will I store the logic in the searchstring? I will need to parse it to extract the fields and terms, so it would be good if at the same time I could also store the logic in an easy to deal with manner. I suppose I will need to remember the order of the field entries, so a dictionary might not be the best way to store things. If I am interating over the object and returning both field and term list, it is unnecessary to be able to access the term list by field name. In fact, the field names aren't necessarily unique, so that would be problematic anyways. I will probably store the fields and terms as seperate lists then. The operators can then also be stored in a list. There will always be n - 1 operators, where n is the number of fields.
+
+So bibfile will iterate over the fields and terms and for each pair decide if all terms are present. I suppose in the end bibfile will return to bibliography simply if that entry is a match. Then it will also need to know about what to print. Fuck. Forgot about that. Is this a new object? Or is this behaviour for bibliography? Should there be a UI object? I think it should be a method on biblography, extracting fields that are asked for. I don't need a new object for the field list because it's so simple.
+
+Since I have to open the file and search the fields twice, this object oriented approach seems less efficient. Could I combine them without a substantial loss in readability or modular organization? Well actually I need to go through the whole file first anyways to check for a match. If I have bibfile open and parse the file to some basic level initially, then I could call the match and extract functions in the same loop and avoid double parsing the file. So I will combine the search and print methods on bibliography. An alternative would be to come up with a more efficient way of searching a file than opening and storing the whole thing.
+
+Notes:
+
+read about regex and state design pattern for parser in python book, design, read about py.test, write tests, code, read about debuggers (pdb, pudb), read about linters (pylint, pep8, pyflakes), debug, read about profilers (cprofile), profile, read about cython, optimze
+

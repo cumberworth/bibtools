@@ -1,13 +1,46 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 """Search reference .bib files for keywords and return requisted info.
 
 """
 
-import argparse, os
+import argparse
+import os
 
 
-class
+class SearchString
+
+_fields
+_terms
+_operators
+
+def __init__(input_string)
+
+def __iter__()
+
+def test_field_logic(tested_fields)
+
+def _parse
+
+def 
+
+
+class Bibliography
+
+_
+
+def __init__(bib_directory)
+
+def match_and_print_fields(search_string, fields)
+
+
+class BibFile
+
+def __init__(file_name)
+
+def search_string_match(search_string)
+
+def get_fields(fields)
 
 
 def main():
@@ -20,6 +53,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+---
 
 for fil in os.listdir('/home/alexc/refs/bibs'):
     keys = []
