@@ -80,7 +80,16 @@ So bibfile will iterate over the fields and terms and for each pair decide if al
 
 Since I have to open the file and search the fields twice, this object oriented approach seems less efficient. Could I combine them without a substantial loss in readability or modular organization? Well actually I need to go through the whole file first anyways to check for a match. If I have bibfile open and parse the file to some basic level initially, then I could call the match and extract functions in the same loop and avoid double parsing the file. So I will combine the search and print methods on bibliography. An alternative would be to come up with a more efficient way of searching a file than opening and storing the whole thing.
 
+Didn't realize until I was writing the tests that at this point there is not way of differentiating bewteen field keywords and search terms for those fields. Without something to mark the field, I will need a list of fields to search from, which I would like to avoid. For now just "field:keywords: will do.
+
+I've now realized that using not can make things a bit confusing, as it will only exclude entries that have none of the terms provided, when usually you would want to exclude entries with any of the terms. For now it will be fine. But eventually I will want to imrpove the the stringsearch parser to allow for more flexible input.
+
+Actually, I don't need to use "fields:[field_name]", as I will always know that the term after an operator will be a new field. And the first word will always be a field (or the not operator). Maybe change later.
+
 Notes:
 
 read about regex and state design pattern for parser in python book, design, read about py.test, write tests, code, read about debuggers (pdb, pudb), read about linters (pylint, pep8, pyflakes), debug, read about profilers (cprofile), profile, read about cython, optimze
 
+pretty good blog post for learning basics of pytest fixtures:
+
+http://programeveryday.com/post/pytest-creating-and-using-fixtures-for-streamlined-testing/
