@@ -127,14 +127,15 @@ class BibFile:
 
     def get_field_texts(self, fields):
         field_texts = []
-        for line in self._file_lines:
-            for field in fields:
+        for field in fields:
+            for line in self._file_lines:
                 # make this a seperate method
                 if field + ' =' in line:
                     field_start = line.find('{') + 1
                     field_end = line.rfind('}')
                     field_text = line[field_start:field_end]
                     field_texts.append(field_text)
+                    break
 
         return field_texts
 
@@ -170,14 +171,25 @@ class Bibliography:
 
 
 def main():
-    argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument('-s', type=str, nargs='+', dest='search_string', help='Search string')
-    argument_parser.add_argument('-t', type=str, nargs='+', dest='terms', help='Terms to print')
-    arguments = argument_parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+            '-s',
+            type=str,
+            nargs='+',
+            dest='search_string',
+            help='Search string')
+    parser.add_argument(
+            '-t',
+            type=str,
+            nargs='+',
+            default = ['title', 'year', 'author', 'annote'],
+            dest='terms',
+            help='Terms to print')
+    args = parser.parse_args()
 
     bibliography = Bibliography(BIB_DIRECTORY)
-    search_string = SearchString(arguments.search_string)
-    bibliography.match_and_print_fields(search_string, arguments.terms)
+    search_string = SearchString(args.search_string)
+    bibliography.match_and_print_fields(search_string, args.terms)
 
 
 if __name__ == '__main__':
