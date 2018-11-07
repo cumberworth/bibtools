@@ -118,7 +118,6 @@ class SearchString:
 
 
 class BibFile:
-
     def __init__(self, entry):
         self._entry = entry
 
@@ -184,6 +183,9 @@ class BibFile:
         with open(filename, 'w') as f:
             f.write(self._entry.to_bib())
 
+    def as_string(self):
+        return self._entry.to_bib()
+
 
 class Bibliography:
     """Bibliography composed of individual bib files in a directory"""
@@ -206,6 +208,9 @@ class Bibliography:
             bibparser.parse(bibfile)
 
         self._entries = bibparser.get_entries()
+
+    def __getitem(self, key):
+        return BibFile(self._entries[key])
 
     def match_and_print_fields(self, search_string, fields):
         print('')

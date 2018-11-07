@@ -1,19 +1,30 @@
 #!/usr/env python
 
-#import pyximport
-#pyximport.install()
+"""Search bibliography database with and output given terms."""
 
-from searchRefs_cython import *
 
 def main():
-    argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument('-s', type=str, nargs='+', dest='search_string', help='Search string')
-    argument_parser.add_argument('-t', type=str, nargs='+', dest='terms', help='Terms to print')
-    arguments = argument_parser.parse_args()
-
+    args = parse_args()
     bibliography = Bibliography(BIB_DIRECTORY)
-    search_string = SearchString(arguments.search_string)
-    bibliography.match_and_print_fields(search_string, arguments.terms)
+    search_string = SearchString(args.search_string)
+    bibliography.match_and_print_fields(search_string, args.terms)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+            '-s',
+            type=str,
+            nargs='+',
+            dest='search_string',
+            help='Search string')
+    parser.add_argument(
+            '-t',
+            type=str,
+            nargs='+',
+            dest='terms',
+            help='Terms to print')
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
