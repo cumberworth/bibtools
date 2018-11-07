@@ -1,24 +1,44 @@
-#!/usr/bin/env python
+"""Custom classes for bib files"""
 
-"""Search reference .bib files for keywords and return requisted info.
 
-"""
-
-import argparse
+import csv
+from collections import OrderedDict
 import os
-import pytest
-import pdb
 
 
-BIB_DIRECTORY = '/home/alexc/refs/bibs/'
+import biblib.bib
+
+
+class Abbreviations:
+    def __init__(self, abb_filename):
+        raw = csv.reader(open(abb_filename))
+
+        self._full_to_abb = {}
+        self._abb_to_full = {}
+        for row in raw:
+            self._full_to_abb[row[0]] = row[1]
+            self._abb_to_full[row[1]] = row[0]
+
+    def abbreviate(self, full):
+        try:
+            abb = self._full_to_abb[full]
+        except KeyError:
+            print('Abbreviation not in database for journal {}'.format(full))
+            raise
+
+        return abb
+
+    def unabbreviate(self, abb):
+        try:
+            abb = self._abb_to_full[abb]
+        except KeyError:
+            print('Abbreviation not in database for journal {}'.format(full))
+            raise
+
+        return abb
 
 
 class SearchString:
-
-#_fields
-#_terms
-#_operators
-
     def __init__(self, input_list):
 
         # Parse search term
@@ -99,27 +119,20 @@ class SearchString:
 
 class BibFile:
 
-    def __init__(self, file_name):
-        with open(file_name) as file:
-            file_lines = file.readlines()
-            #file_lines = [file_line.lower() for file_line in file_lines]
-        
-        # There are a lot of better ways to parse the file
-        self._file_lines = file_lines
+    def __init__(self, entry):
+        self._entry = entry
 
     def search_string_match(self, search_string):
-        # I am using a fragile method to this, probably also slow
         tested_fields = [False] * len(search_string.fields)
-        for line in self._file_lines:
-            line = line.lower()
-            for field_index, (field, terms) in enumerate(search_string):
-                if field + ' =' in line:
-                    if all(term in line for term in terms):
-                        tested_fields[field_index] = True
-                    else:
-                        pass
+        for field_index, (field, terms) in enumerate(search_string):
+            if field in self._entry.keys():
+                field_entry = self._entry[field].lower()
+                if all(term in field_entry for term in terms):
+                    tested_fields[field_index] = True
                 else:
                     pass
+            else:
+                pass
 
         match = search_string.fields_match(tested_fields)
 
@@ -128,23 +141,57 @@ class BibFile:
     def get_field_texts(self, fields):
         field_texts = []
         for field in fields:
-            for line in self._file_lines:
-                # make this a seperate method
-                if field + ' =' in line:
-                    field_start = line.find('{') + 1
-                    field_end = line.rfind('}')
-                    field_text = line[field_start:field_end]
-                    field_texts.append(field_text)
-                    break
+            if field in self._entry.keys():
+                field_texts.append(self._entry[field])
 
         return field_texts
 
+    def standarize_order_and_fields(self):
+        key = self._entry.key
+        typ = self._entry.typ
+        standard = OrderedDict()
+        if typ == 'article':
+            fields = ['author', 'title', 'journal', 'volume', 'pages', 'year',
+                    'doi']
+            for field in fields:
+                try:
+                    standard[field] = self._entry[field]
+                except KeyError:
+                    print('Entry {} missing field {}'.format(key, field))
+
+        else:
+            print('Standard not defined for entry type {}'.format(typ))
+
+        self._entry = biblib.bib.Entry(standard, typ=typ, key=key)
+
+    def abbreviate_journal(self, abbreviations):
+        if self._entry.typ == 'article':
+            journal = self._entry['journal']
+            abb = abbreviations.abbreviate(journal)
+            self._entry['journal'] = abb
+
+    def unabbreviate_journal(self, abbreviations):
+        if self._typ == 'article':
+            journal = self._entry['journal']
+            if '.' in journal:
+                full = abbreviations.unabbreviate(journal)
+                self._entry['journal'] = full
+
+    def write_to_file(self, filename=None):
+        if filename == None:
+            filename = '{}.tex'.format(self._entry.key)
+
+        with open(filename, 'w') as f:
+            f.write(self._entry.to_bib())
+
 
 class Bibliography:
-
+    """Bibliography composed of individual bib files in a directory"""
     def __init__(self, bib_directory):
         bibfile_names = []
         for bibfile_name in os.listdir(bib_directory):
+
+            # Ignore hidden files
             if bibfile_name[0] == '.':
                 continue
             bibfile_name_full = bib_directory + bibfile_name
@@ -152,10 +199,18 @@ class Bibliography:
 
         self._bibfile_names = bibfile_names
 
+        # Create biblib database
+        bibparser = biblib.bib.Parser()
+        for filename in bibfile_names:
+            bibfile = open(filename)
+            bibparser.parse(bibfile)
+
+        self._entries = bibparser.get_entries()
+
     def match_and_print_fields(self, search_string, fields):
         print('')
-        for bibfile_name in self._bibfile_names:
-            bibfile = BibFile(bibfile_name)
+        for entry in self._entries.values():
+            bibfile = BibFile(entry)
             match = bibfile.search_string_match(search_string)
             if match:
                 field_texts = bibfile.get_field_texts(fields)
@@ -168,29 +223,3 @@ class Bibliography:
             print(field_text)
 
         print('')
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-            '-s',
-            type=str,
-            nargs='+',
-            dest='search_string',
-            help='Search string')
-    parser.add_argument(
-            '-t',
-            type=str,
-            nargs='+',
-            default = ['title', 'year', 'author', 'annote'],
-            dest='terms',
-            help='Terms to print')
-    args = parser.parse_args()
-
-    bibliography = Bibliography(BIB_DIRECTORY)
-    search_string = SearchString(args.search_string)
-    bibliography.match_and_print_fields(search_string, args.terms)
-
-
-if __name__ == '__main__':
-    main()
