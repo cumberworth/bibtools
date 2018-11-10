@@ -12,7 +12,7 @@ BIB_DIRECTORY = '/home/alexc/refs/bibs/'
 ABBREVS_FILE = '/home/alexc/share/cassi-abbreviations.csv'
 
 
-def main()
+def main():
     args = parse_args()
     bib_keys = parse_latex_file(args.latex_file)
     bib_entries = create_bib_entries(bib_keys)
@@ -36,13 +36,13 @@ def parse_latex_file(filename):
     with open(filename) as f:
         latex_file = f.read()
 
-    reg = re.compile('cite{|t|num}{[a-z0-9\*,-]*}')
-    cite_commands =  reg.findall(raw)
+    cite_commands = re.finditer(r'(cite)(t|num)?(\{)(?P<keys>[\w*,-]*)(\})',
+                               latex_file)
     empty_citations = 0
     bib_keys = []
     for cite in cite_commands:
-        keys = parse_cite_command()
-        if empty_citation(keys)
+        keys = parse_cite_command(cite)
+        if empty_citation(keys):
             empty_citations += 1
             continue
 
@@ -57,15 +57,12 @@ def parse_latex_file(filename):
     return bib_keys
 
 
-def parse_cite_command(cite_command):
-    cite = cite.replace('cite{', '')
-    cite = cite.replace('citet{', '')
-    cite = cite.replace('citenum{', '')
+def parse_cite_command(cite):
+    cite = cite.group('keys')
     cite = cite.replace('*', '')
-    cite = cite.replace('}', '')
     bib_keys = cite.split(',')
 
-    return cite
+    return bib_keys
 
 
 def empty_citation(keys):
@@ -78,15 +75,15 @@ def create_bib_entries(bib_keys):
     abbs = mbl.Abbreviations(ABBREVS_FILE)
     for bib_key in bib_keys:
         try:
-            bib_entry = bib[cite]
+            bib_entry = bib[bib_key]
         except KeyError:
-            print('No reference for {}'.format(cite))
+            print('No reference for {}'.format(bib_key))
             continue
 
         bib_entry.abbreviate_journal(abbs)
         bib_entry.standarize_order_and_fields()
 
-        bib_entries.append(bib_entry.as_string)
+        bib_entries.append(bib_entry.as_string())
 
     return bib_entries
 

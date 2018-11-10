@@ -152,14 +152,20 @@ class BibFile:
         if typ == 'article':
             fields = ['author', 'title', 'journal', 'volume', 'pages', 'year',
                     'doi']
-            for field in fields:
-                try:
-                    standard[field] = self._entry[field]
-                except KeyError:
-                    print('Entry {} missing field {}'.format(key, field))
-
+        elif typ == 'book':
+            fields = ['author', 'title', 'year', 'publisher', 'isbn']
+        elif typ == 'phdthesis':
+            fields = ['author', 'title', 'year', 'school']
         else:
             print('Standard not defined for entry type {}'.format(typ))
+            print(key)
+            raise Exception
+
+        for field in fields:
+            try:
+                standard[field] = self._entry[field]
+            except KeyError:
+                print('Entry {} missing field {}'.format(key, field))
 
         self._entry = biblib.bib.Entry(standard, typ=typ, key=key)
 
@@ -209,7 +215,7 @@ class Bibliography:
 
         self._entries = bibparser.get_entries()
 
-    def __getitem(self, key):
+    def __getitem__(self, key):
         return BibFile(self._entries[key])
 
     def match_and_print_fields(self, search_string, fields):
