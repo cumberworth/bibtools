@@ -11,7 +11,7 @@ import biblib.bib
 
 class Abbreviations:
     def __init__(self, abb_filename):
-        raw = csv.reader(open(abb_filename))
+        raw = csv.reader(open(abb_filename), delimiter=';')
 
         self._full_to_abb = {}
         self._abb_to_full = {}
@@ -156,6 +156,10 @@ class BibFile:
             fields = ['author', 'title', 'year', 'publisher', 'isbn']
         elif typ == 'phdthesis':
             fields = ['author', 'title', 'year', 'school']
+        elif typ == 'inproceedings':
+            fields = ['author', 'title', 'booktitle', 'series', 'year', 'isbn', 'location', 'pages', 'doi', 'publisher', 'address']
+        elif typ == 'inbook':
+            fields = ['author', 'editor', 'title', 'booktitle', 'year', 'isbn', 'pages', 'doi', 'publisher', 'address']
         else:
             print('Standard not defined for entry type {}'.format(typ))
             print(key)
