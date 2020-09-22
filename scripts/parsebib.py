@@ -19,9 +19,7 @@ FIELDS = ['title', 'author', 'journal', 'volume', 'number',
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('filebase', help='Filebase of bib file')
-    args = parser.parse_args()
+    args = parse_args()
     filebase = args.filebase
 
     filename = filebase + '.bib'
@@ -50,9 +48,17 @@ def main():
         else:
             field_dic = find_entry(line, field_dic)
 
-
     # modify field contents (capitilization, brackets, etc.)
     output_standard_bib(filebase, field_dic)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('filebase', help='Filebase of bib file')
+
+    return parser.parse_args()
 
 
 def find_entry(line, field_dic):

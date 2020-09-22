@@ -21,7 +21,9 @@ def main():
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         'latex_file',
         type=str,

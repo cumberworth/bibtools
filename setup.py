@@ -5,6 +5,6 @@ setup(
     name='bibtools',
     packages=['bibtools'],
     scripts=glob.glob('scripts/*.py'),
-    package_data={'bibtools': ['cassi-abbreviations.csv']},
+    package_data={'bibtools': ['data/cassi-abbreviations.csv']},
     install_requires=['biblib']
 )
