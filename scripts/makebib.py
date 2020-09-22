@@ -9,7 +9,6 @@ import re
 import bibtools.bib as btl
 
 
-BIB_DIRECTORY = '/home/alexc/refs/bibs/'
 ABBREVS_FILE = pkg_resources.resource_filename(
     'bibtools', 'data/cassi-abbreviations.csv')
 
@@ -73,7 +72,7 @@ def empty_citation(keys):
 
 def create_bib_entries(bib_keys):
     bib_entries = []
-    bib = btl.Bibliography(BIB_DIRECTORY)
+    bib = btl.Bibliography(btl.BIB_DIRECTORY)
     abbs = btl.Abbreviations(ABBREVS_FILE)
     for bib_key in bib_keys:
         try:

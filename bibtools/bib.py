@@ -9,6 +9,9 @@ import os
 import biblib.bib
 
 
+BIB_DIRECTORY = '/home/alexc/refs/bibs/'
+
+
 class Abbreviations:
     def __init__(self, abb_filename):
         raw = csv.reader(open(abb_filename), delimiter=';')

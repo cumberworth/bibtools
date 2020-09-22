@@ -1,6 +1,20 @@
 #!/usr/env python
 
-"""Search bibliography database with and output given terms."""
+"""Search bibliography database.
+
+The search string takes the format of field:[field name] followed by a list of
+terms to search for in that field. The implied boolean operator between these
+terms is "and". To use other boolean operators with the same field, the
+field:[field name] must be repeated after the operator. More generally, the
+boolean operators "and", "or", and "not" can be placed before the field
+specifier. The "and" operator is again the default between field specifiers.
+The same field names are used to specify the desired output.
+
+Example:
+
+searchbibs.py -s field:keywords anillin and not field:keywords review -t title year author keywords
+
+"""
 
 
 import argparse
@@ -8,12 +22,9 @@ import argparse
 import bibtools.bib as btl
 
 
-BIB_DIRECTORY = '/home/alexc/refs/bibs/'
-
-
 def main():
     args = parse_args()
-    bibliography = btl.Bibliography(BIB_DIRECTORY)
+    bibliography = btl.Bibliography(btl.BIB_DIRECTORY)
     search_string = btl.SearchString(args.search_string)
     bibliography.match_and_print_fields(search_string, args.terms)
 
