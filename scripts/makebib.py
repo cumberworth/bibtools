@@ -5,7 +5,7 @@
 import argparse
 import re
 
-import mybiblib.bib as mbl
+import bibtools.bib as btl
 
 
 BIB_DIRECTORY = '/home/alexc/refs/bibs/'
@@ -22,13 +22,13 @@ def main():
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-            'latex_file',
-            type=str,
-            help='Input tex file')
+        'latex_file',
+        type=str,
+        help='Input tex file')
     parser.add_argument(
-            'bib_file',
-            type=str,
-            help='Output bib file')
+        'bib_file',
+        type=str,
+        help='Output bib file')
     return parser.parse_args()
 
 
@@ -37,7 +37,7 @@ def parse_latex_file(filename):
         latex_file = f.read()
 
     cite_commands = re.finditer(r'(cite)(t|num)?(\{)(?P<keys>[\w*,-]*)(\})',
-                               latex_file)
+                                latex_file)
     empty_citations = 0
     bib_keys = []
     for cite in cite_commands:
@@ -71,8 +71,8 @@ def empty_citation(keys):
 
 def create_bib_entries(bib_keys):
     bib_entries = []
-    bib = mbl.Bibliography(BIB_DIRECTORY)
-    abbs = mbl.Abbreviations(ABBREVS_FILE)
+    bib = btl.Bibliography(BIB_DIRECTORY)
+    abbs = btl.Abbreviations(ABBREVS_FILE)
     for bib_key in bib_keys:
         try:
             bib_entry = bib[bib_key]

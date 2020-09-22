@@ -1,34 +1,37 @@
 #!/usr/env python
 
-from searchRefs import *
 import pytest
+
+import bibtools as btl
 
 
 @pytest.fixture
 def search_string_simple():
-    input_list= ['field:keywords', 'stuff', 'thing']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'stuff', 'thing']
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
 @pytest.fixture
 def search_string_negation():
     input_list = ['not', 'field:keywords', 'stuff', 'thing']
-    search_string = SearchString(input_list)
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
 @pytest.fixture
 def search_string_conjunction():
-    input_list= ['field:keywords', 'stuff', 'thing', 'and', 'field:author', 'pande']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'stuff',
+                  'thing', 'and', 'field:author', 'pande']
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
 @pytest.fixture
 def search_string_disjunction():
-    input_list = ['field:keywords', 'stuff', 'thing', 'or', 'field:author', 'pande']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'stuff',
+                  'thing', 'or', 'field:author', 'pande']
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
@@ -38,9 +41,11 @@ class TestSearchString:
         (search_string_simple(), ['keywords'], [['stuff', 'thing']]),
         (search_string_negation(), ['keywords'], [['stuff', 'thing']]),
         (search_string_conjunction(), ['keywords', 'author'], [['stuff',
-            'thing'], ['pande']]),
+                                                                'thing'],
+                                                               ['pande']]),
         (search_string_disjunction(), ['keywords', 'author'], [['stuff',
-            'thing'], ['pande']])])
+                                                                'thing'],
+                                                               ['pande']])])
     def test__iter__(self, search_string, field_list, terms_list):
         test_field_list = []
         test_terms_list = []
@@ -71,41 +76,45 @@ class TestSearchString:
 
 @pytest.fixture()
 def bibfile_pande():
-    bibfile_pande = BibFile('pande2010.bib')
+    bibfile_pande = btl.BibFile('pande2010.bib')
     return bibfile_pande
 
 
 @pytest.fixture
 def search_string_pande_1():
-    input_list= ['field:keywords', 'review', 'msm']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'review', 'msm']
+    search_string = btl.SearchString(input_list)
     return search_string
+
 
 @pytest.fixture
 def search_string_pande_2():
-    input_list= ['field:keywords', 'review', 'msm', 'thing']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'review', 'msm', 'thing']
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
 @pytest.fixture
 def search_string_pande_3():
-    input_list= ['field:keywords', 'review', 'msm', 'and', 'field:author', 'pande']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'review',
+                  'msm', 'and', 'field:author', 'pande']
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
 @pytest.fixture
 def search_string_pande_4():
-    input_list= ['field:keywords', 'review', 'msm', 'and', 'not', 'field:author', 'pande']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'review', 'msm',
+                  'and', 'not', 'field:author', 'pande']
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
 @pytest.fixture
 def search_string_pande_5():
-    input_list= ['field:keywords', 'review', 'msm', 'or', 'not', 'field:author', 'pande']
-    search_string = SearchString(input_list)
+    input_list = ['field:keywords', 'review',
+                  'msm', 'or', 'not', 'field:author', 'pande']
+    search_string = btl.SearchString(input_list)
     return search_string
 
 
@@ -126,7 +135,8 @@ class TestBibFile:
         (['annote', 'title'], ['Everything', 'Review'])])
     def test_get_field(self, bibfile_pande, fields, first_words):
         field_texts = bibfile_pande.get_field_texts(fields)
-        test_first_words = [field_text.split()[0] for field_text in field_texts]
+        test_first_words = [field_text.split()[0]
+                            for field_text in field_texts]
         assert test_first_words == first_words
 
 
@@ -134,4 +144,3 @@ class TestBibliography:
 
     def test_match_and_print_fields(self):
         pass
-

@@ -1,13 +1,51 @@
 #!/usr/bin/env python3
 
-"""Parse bib files and output in standard format; warn if missing information"""
+"""Parse bib files and output in standard format"""
 
 # For now assumes bib file is article
 
 import argparse
 
 
-FIELDS = ['title', 'author', 'journal', 'volume', 'number', 'pages', 'year', 'issn', 'doi', 'url', 'abstract']
+FIELDS = ['title', 'author', 'journal', 'volume', 'number',
+          'pages', 'year', 'issn', 'doi', 'url', 'abstract']
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filebase', help='Filebase of bib file')
+    args = parser.parse_args()
+    filebase = args.filebase
+
+    filename = filebase + '.bib'
+
+    with open(filename) as inp:
+        lines = inp.readlines()
+
+    field_dic = {}
+    merged_line = ''
+    for line in lines[1:]:
+        if '@' in line:
+            continue
+        line = line.lstrip()
+        line = line.rstrip('\n')
+        if line[0] == '}':
+            continue
+        if line[-2] != '}':
+            merged_line = merged_line + line
+            continue
+        else:
+            if merged_line != '':
+                line = merged_line + line
+                merged_line = ''
+        if line == '\n':
+            continue
+        else:
+            field_dic = find_entry(line, field_dic)
+
+
+    # modify field contents (capitilization, brackets, etc.)
+    output_standard_bib(filebase, field_dic)
 
 
 def find_entry(line, field_dic):
@@ -34,29 +72,6 @@ def output_standard_bib(filebase, field_dic):
     print('    keywords = {},')
     print('    annote = {}')
     print('}')
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('filebase', help='Filebase of bib file')
-    args = parser.parse_args()
-    filebase = args.filebase
-
-    filename = filebase + '.bib'
-
-
-    with open(filename) as inp:
-        lines = inp.readlines()
-
-    field_dic = {}
-    for line in lines[1:]:
-        if line == '\n':
-            continue
-        else:
-            field_dic = find_entry(line, field_dic)
-
-    #modify field contents (capitilization, brackets, etc.)
-    output_standard_bib(filebase, field_dic)
 
 
 if __name__ == '__main__':

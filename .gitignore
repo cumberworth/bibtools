@@ -1,7 +1,7 @@
 *__pycache__/
 build/
 dist/
-mybiblib.egg-info/
+bibtools.egg-info/
 *swp
 prereqs.txt
 tags

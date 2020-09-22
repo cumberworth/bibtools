@@ -32,7 +32,7 @@ class Abbreviations:
         try:
             abb = self._abb_to_full[abb]
         except KeyError:
-            print('Abbreviation not in database for journal {}'.format(full))
+            print('Abbreviation not in database for journal {}'.format(abb))
             raise
 
         return abb
@@ -91,7 +91,8 @@ class SearchString:
             if operator in ('and', 'or'):
                 try:
                     if self._operators[operator_index + 1] == 'not':
-                        tested_fields[field_index] = not tested_fields[field_index]
+                        tested_fields[field_index] = (
+                            not tested_fields[field_index])
                     else:
                         pass
                 except IndexError:
@@ -151,15 +152,18 @@ class BibFile:
         standard = OrderedDict()
         if typ == 'article':
             fields = ['author', 'title', 'journal', 'volume', 'pages', 'year',
-                    'doi']
+                      'doi']
         elif typ == 'book':
             fields = ['author', 'title', 'year', 'publisher', 'isbn']
         elif typ == 'phdthesis':
             fields = ['author', 'title', 'year', 'school']
         elif typ == 'inproceedings':
-            fields = ['author', 'title', 'booktitle', 'series', 'year', 'isbn', 'location', 'pages', 'doi', 'publisher', 'address']
+            fields = ['author', 'title', 'booktitle', 'series', 'year',
+                      'isbn', 'location', 'pages', 'doi', 'publisher',
+                      'address']
         elif typ == 'inbook':
-            fields = ['author', 'editor', 'title', 'booktitle', 'year', 'isbn', 'pages', 'doi', 'publisher', 'address']
+            fields = ['author', 'editor', 'title', 'booktitle',
+                      'year', 'isbn', 'pages', 'doi', 'publisher', 'address']
         else:
             print('Standard not defined for entry type {}'.format(typ))
             print(key)
@@ -187,7 +191,7 @@ class BibFile:
                 self._entry['journal'] = full
 
     def write_to_file(self, filename=None):
-        if filename == None:
+        if filename is None:
             filename = '{}.tex'.format(self._entry.key)
 
         with open(filename, 'w') as f:
@@ -199,6 +203,7 @@ class BibFile:
 
 class Bibliography:
     """Bibliography composed of individual bib files in a directory"""
+
     def __init__(self, bib_directory):
         bibfile_names = []
         for bibfile_name in os.listdir(bib_directory):

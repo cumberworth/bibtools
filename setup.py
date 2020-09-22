@@ -2,8 +2,8 @@ import glob
 from setuptools import setup
 
 setup(
-    name='mybiblib',
-    packages=['mybiblib'],
+    name='bibtools',
+    packages=['bibtools'],
     scripts=glob.glob('scripts/*.py'),
     install_requires=['biblib']
 )
