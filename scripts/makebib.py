@@ -3,13 +3,15 @@
 """Read cited references from latex file and compile a bib file"""
 
 import argparse
+import pkg_resources
 import re
 
 import bibtools.bib as btl
 
 
 BIB_DIRECTORY = '/home/alexc/refs/bibs/'
-ABBREVS_FILE = '/home/alexc/share/cassi-abbreviations.csv'
+ABBREVS_FILE = pkg_resources.resource_filename(
+    'bibtools', 'data/cassi-abbreviations.csv')
 
 
 def main():
