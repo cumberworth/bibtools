@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
-"""Parse bib files and output in standard format"""
+"""Parse bib files and output in standard format
+
+Currently this only works on article class bib files. It will add two new
+fields: annote and keywords. The filename extension should not be included.
+To change the file in place, run
+
+echo "$(parseBib.py [filebase]) > [filebase].bib
+"""
 
 # For now assumes bib file is article
 
