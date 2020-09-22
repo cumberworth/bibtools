@@ -11,7 +11,7 @@ To add an entry, enter the full journal name, a semicolon as a delimiter, and th
 ## Installation
 
 The location of the directory that the bib file data base is located must first be specified.
-This is done by changing the `BIB_DIRECTORY` variable in [bibtools/bib.py](bibtools/byb.py).
+This is done by changing the `BIB_DIRECTORY` variable in [bibtools/bib.py](bibtools/bib.py).
 Then run
 ```
 python setup.py install --user
