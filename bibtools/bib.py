@@ -223,7 +223,11 @@ class Bibliography:
         bibparser = biblib.bib.Parser()
         for filename in bibfile_names:
             bibfile = open(filename)
-            bibparser.parse(bibfile)
+            try:
+                bibparser.parse(bibfile)
+            except:
+                print('Invalid formatting in {}'.format(bibfile))
+                raise
 
         self._entries = bibparser.get_entries()
 
