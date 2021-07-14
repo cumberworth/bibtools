@@ -51,7 +51,7 @@ def parse_lines(lines):
         line = line.strip()
 
         # Check if start of an entry
-        if '=' in line and line.split()[1] == '=':
+        if '=' in line and len(line.split('=')[0].split()) == 1:
             find_entry(merged_line, field_dic)
             merged_line = line
         else:
