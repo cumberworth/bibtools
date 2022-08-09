@@ -2,7 +2,7 @@
 
 """Parse bib files and output in standard format
 
-Currently this only works on article class bib files. It will add two new
+Currently this only works on article and misc class bib files. It will add two new
 fields: annote and keywords. The filename extension should not be included.
 To change the file in place, run
 
@@ -14,8 +14,21 @@ echo "$(parseBib.py [filename])" > [filename].bib
 import argparse
 
 
-FIELDS = ['title', 'author', 'journal', 'volume', 'number',
-          'pages', 'year', 'issn', 'doi', 'url', 'abstract']
+FIELDS = {
+    "article": [
+        "title",
+        "author",
+        "journal",
+        "volume",
+        "number",
+        "pages",
+        "year",
+        "issn",
+        "doi",
+        "url",
+        "abstract",
+    ]
+}
 
 
 def main():
@@ -25,56 +38,64 @@ def main():
     with open(filename) as inp:
         lines = inp.readlines()
 
-    field_dic = parse_lines(lines)
-    output_standard_bib(filename, field_dic)
+    entry_type, field_dic = parse_lines(lines)
+    output_standard_bib(filename, entry_type, field_dic)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('filename', help='Filename of bib file')
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("filename", help="Filename of bib file")
 
     return parser.parse_args()
 
 
 def parse_lines(lines):
     field_dic = {}
-    merged_line = ''
-    for line in lines[1:]:
+    merged_line = ""
+    entry_type = None
+    for line in lines:
 
         # Will create this from scratch
-        if '@' in line:
+        if "@" in line:
+            if "article" in line:
+                entry_type = "article"
+            elif "misc" in line:
+                entry_type = "misc"
+            else:
+                print("Entry type not implemented")
+                raise
             continue
 
         # Remove white space and line break
         line = line.strip()
 
         # Check if start of an entry
-        if '=' in line and len(line.split('=')[0].split()) == 1:
-            find_entry(merged_line, field_dic)
+        if "=" in line and len(line.split("=")[0].split()) == 1:
+            find_entry(merged_line, entry_type, field_dic)
             merged_line = line
         else:
-            merged_line = merged_line + ' ' + line
+            merged_line = merged_line + " " + line
     else:
-        find_entry(merged_line, field_dic)
+        find_entry(merged_line, entry_type, field_dic)
 
-    return field_dic
+    return entry_type, field_dic
 
 
-def find_entry(line, field_dic):
-    if '=' not in line:
+def find_entry(line, entry_type, field_dic):
+    if "=" not in line:
         return field_dic
 
-    split_line = line.split('=')
+    split_line = line.split("=")
     field = split_line[0].rstrip().lower()
-    entry = ''.join(split_line[1:])
-    if field in FIELDS:
+    entry = "".join(split_line[1:])
+    if entry_type == "misc" or field in FIELDS[entry_type]:
 
         # Remove enclosing characters, the comma on the right, and any space
         entry = entry.lstrip()[1:].lstrip()
 
-        while entry[-1] in [' ', '\n', ',', '"', '}']:
+        while entry[-1] in [" ", "\n", ",", '"', "}"]:
             entry = entry.rstrip()[:-1]
 
         field_dic[field] = entry
@@ -82,16 +103,16 @@ def find_entry(line, field_dic):
     return field_dic
 
 
-def output_standard_bib(filename, field_dic):
-    filebase = filename.split('.')[0]
-    print('@article{{{},'.format(filebase))
+def output_standard_bib(filename, entry_type, field_dic):
+    filebase = filename.split(".")[0]
+    print(f"@{entry_type}{{{filebase},")
     for field, entry in field_dic.items():
-        print('    {} = {{{}}},'.format(field, entry))
+        print(f"    {field} = {{{entry}}},")
 
-    print('    keywords = {},')
-    print('    annote = {}')
-    print('}')
+    print("    keywords = {},")
+    print("    annote = {}")
+    print("}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

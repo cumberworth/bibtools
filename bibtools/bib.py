@@ -183,7 +183,12 @@ class BibFile:
     def abbreviate_journal(self, abbreviations):
         if self._entry.typ == 'article':
             journal = self._entry['journal']
-            abb = abbreviations.abbreviate(journal)
+            try:
+                abb = abbreviations.abbreviate(journal)
+            except KeyError:
+                print(f'Found in {self._entry.key}')
+                raise
+
             self._entry['journal'] = abb
 
     def unabbreviate_journal(self, abbreviations):
