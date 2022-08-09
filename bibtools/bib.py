@@ -9,12 +9,12 @@ import os
 import biblib.bib
 
 
-BIB_DIRECTORY = '/home/alexc/refs/bibs/'
+BIB_DIRECTORY = "/home/alexc/refs/bibs/"
 
 
 class Abbreviations:
     def __init__(self, abb_filename):
-        raw = csv.reader(open(abb_filename), delimiter=';')
+        raw = csv.reader(open(abb_filename), delimiter=";")
 
         self._full_to_abb = {}
         self._abb_to_full = {}
@@ -26,7 +26,7 @@ class Abbreviations:
         try:
             abb = self._full_to_abb[full]
         except KeyError:
-            print('Abbreviation not in database for journal {}'.format(full))
+            print("Abbreviation not in database for journal {}".format(full))
             raise
 
         return abb
@@ -35,7 +35,7 @@ class Abbreviations:
         try:
             abb = self._abb_to_full[abb]
         except KeyError:
-            print('Abbreviation not in database for journal {}'.format(abb))
+            print("Abbreviation not in database for journal {}".format(abb))
             raise
 
         return abb
@@ -49,11 +49,11 @@ class SearchString:
         terms = []
         operators = []
         for term in input_list:
-            if 'field:' in term:
-                field = term.split(':')[1]
+            if "field:" in term:
+                field = term.split(":")[1]
                 fields.append(field)
                 terms.append([])
-            elif term in ['and', 'or', 'not']:
+            elif term in ["and", "or", "not"]:
                 operators.append(term)
             else:
                 terms[-1].append(term)
@@ -82,7 +82,7 @@ class SearchString:
         if len(self._operators) == 0:
             pass
         else:
-            if self._operators[0] == 'not':
+            if self._operators[0] == "not":
                 tested_fields[0] = not tested_fields[0]
             else:
                 pass
@@ -91,18 +91,17 @@ class SearchString:
         field_index = 1
         # Loop through operators, apply negations, and remove from operators
         for operator_index, operator in enumerate(self._operators):
-            if operator in ('and', 'or'):
+            if operator in ("and", "or"):
                 try:
-                    if self._operators[operator_index + 1] == 'not':
-                        tested_fields[field_index] = (
-                            not tested_fields[field_index])
+                    if self._operators[operator_index + 1] == "not":
+                        tested_fields[field_index] = not tested_fields[field_index]
                     else:
                         pass
                 except IndexError:
                     pass
                 field_index += 1
                 operators_without_negations.append(operator)
-            elif operator == 'not':
+            elif operator == "not":
                 pass
 
         # Loop through again and apply conjunctions and disjunctions
@@ -110,10 +109,10 @@ class SearchString:
         next_field_index = 1
         for operator in operators_without_negations:
             next_field = tested_fields[next_field_index]
-            if operator == 'and':
+            if operator == "and":
                 previous_fields = previous_fields and next_field
                 next_field_index += 1
-            elif operator == 'or':
+            elif operator == "or":
                 previous_fields = previous_fields or next_field
                 next_field_index += 1
 
@@ -153,22 +152,45 @@ class BibFile:
         key = self._entry.key
         typ = self._entry.typ
         standard = OrderedDict()
-        if typ == 'article':
-            fields = ['author', 'title', 'journal', 'volume', 'pages', 'year',
-                      'doi']
-        elif typ == 'book':
-            fields = ['author', 'title', 'year', 'publisher', 'isbn']
-        elif typ == 'phdthesis':
-            fields = ['author', 'title', 'year', 'school']
-        elif typ == 'inproceedings':
-            fields = ['author', 'title', 'booktitle', 'series', 'year',
-                      'isbn', 'location', 'pages', 'doi', 'publisher',
-                      'address']
-        elif typ == 'inbook':
-            fields = ['author', 'editor', 'title', 'booktitle',
-                      'year', 'isbn', 'pages', 'doi', 'publisher', 'address']
+        if typ == "article":
+            fields = ["author", "title", "journal", "volume", "pages", "year", "doi"]
+        elif typ == "book":
+            fields = ["author", "title", "year", "publisher", "isbn"]
+        elif typ == "phdthesis":
+            fields = ["author", "title", "year", "school"]
+        elif typ == "inproceedings":
+            fields = [
+                "author",
+                "title",
+                "booktitle",
+                "series",
+                "year",
+                "isbn",
+                "location",
+                "pages",
+                "doi",
+                "publisher",
+                "address",
+            ]
+        elif typ == "inbook":
+            fields = [
+                "author",
+                "editor",
+                "title",
+                "booktitle",
+                "year",
+                "isbn",
+                "pages",
+                "doi",
+                "publisher",
+                "address",
+            ]
+
+        # This is really for ArXiv.
+        elif typ == "misc":
+            fields = ["author", "title", "publisher", "year", "doi"]
         else:
-            print('Standard not defined for entry type {}'.format(typ))
+            print("Standard not defined for entry type {}".format(typ))
             print(key)
             raise Exception
 
@@ -176,33 +198,33 @@ class BibFile:
             try:
                 standard[field] = self._entry[field]
             except KeyError:
-                print('Entry {} missing field {}'.format(key, field))
+                print("Entry {} missing field {}".format(key, field))
 
         self._entry = biblib.bib.Entry(standard, typ=typ, key=key)
 
     def abbreviate_journal(self, abbreviations):
-        if self._entry.typ == 'article':
-            journal = self._entry['journal']
+        if self._entry.typ == "article":
+            journal = self._entry["journal"]
             try:
                 abb = abbreviations.abbreviate(journal)
             except KeyError:
-                print(f'Found in {self._entry.key}')
+                print(f"Found in {self._entry.key}")
                 raise
 
-            self._entry['journal'] = abb
+            self._entry["journal"] = abb
 
     def unabbreviate_journal(self, abbreviations):
-        if self._typ == 'article':
-            journal = self._entry['journal']
-            if '.' in journal:
+        if self._typ == "article":
+            journal = self._entry["journal"]
+            if "." in journal:
                 full = abbreviations.unabbreviate(journal)
-                self._entry['journal'] = full
+                self._entry["journal"] = full
 
     def write_to_file(self, filename=None):
         if filename is None:
-            filename = '{}.tex'.format(self._entry.key)
+            filename = "{}.tex".format(self._entry.key)
 
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             f.write(self._entry.to_bib())
 
     def as_string(self):
@@ -217,7 +239,7 @@ class Bibliography:
         for bibfile_name in os.listdir(bib_directory):
 
             # Ignore hidden files
-            if bibfile_name[0] == '.':
+            if bibfile_name[0] == ".":
                 continue
             bibfile_name_full = bib_directory + bibfile_name
             bibfile_names.append(bibfile_name_full)
@@ -231,7 +253,7 @@ class Bibliography:
             try:
                 bibparser.parse(bibfile)
             except:
-                print('Invalid formatting in {}'.format(bibfile))
+                print("Invalid formatting in {}".format(bibfile))
                 raise
 
         self._entries = bibparser.get_entries()
@@ -240,7 +262,7 @@ class Bibliography:
         return BibFile(self._entries[key])
 
     def match_and_print_fields(self, search_string, fields):
-        print('')
+        print("")
         for entry in self._entries.values():
             bibfile = BibFile(entry)
             match = bibfile.search_string_match(search_string)
@@ -254,4 +276,4 @@ class Bibliography:
         for field_text in field_texts:
             print(field_text)
 
-        print('')
+        print("")

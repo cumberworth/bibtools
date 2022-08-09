@@ -31,24 +31,22 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument(
-        '-s',
-        type=str,
-        nargs='+',
-        dest='search_string',
-        help='Search string')
+        "-s", type=str, nargs="+", dest="search_string", help="Search string"
+    )
     parser.add_argument(
-        '-t',
+        "-t",
         type=str,
-        nargs='+',
-        default=['title', 'year', 'author', 'annote'],
-        dest='terms',
-        help='Terms to print')
+        nargs="+",
+        default=["title", "year", "author", "annote"],
+        dest="terms",
+        help="Terms to print",
+    )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

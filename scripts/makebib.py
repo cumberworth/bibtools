@@ -10,7 +10,8 @@ import bibtools.bib as btl
 
 
 ABBREVS_FILE = pkg_resources.resource_filename(
-    'bibtools', 'data/cassi-abbreviations.csv')
+    "bibtools", "data/cassi-abbreviations.csv"
+)
 
 
 def main():
@@ -22,16 +23,10 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument(
-        'latex_file',
-        type=str,
-        help='Input tex file')
-    parser.add_argument(
-        'bib_file',
-        type=str,
-        help='Output bib file')
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("latex_file", type=str, help="Input tex file")
+    parser.add_argument("bib_file", type=str, help="Output bib file")
     return parser.parse_args()
 
 
@@ -39,8 +34,7 @@ def parse_latex_file(filename):
     with open(filename) as f:
         latex_file = f.read()
 
-    cite_commands = re.finditer(r'(cite)(t|num)?(\{)(?P<keys>[\w*,-]*)(\})',
-                                latex_file)
+    cite_commands = re.finditer(r"(cite)(t|num)?(\{)(?P<keys>[\w*,-]*)(\})", latex_file)
     empty_citations = 0
     bib_keys = []
     for cite in cite_commands:
@@ -55,21 +49,21 @@ def parse_latex_file(filename):
             else:
                 bib_keys.append(key)
 
-    print('There are {} empty citations'.format(empty_citations))
+    print("There are {} empty citations".format(empty_citations))
 
     return bib_keys
 
 
 def parse_cite_command(cite):
-    cite = cite.group('keys')
-    cite = cite.replace('*', '')
-    bib_keys = cite.split(',')
+    cite = cite.group("keys")
+    cite = cite.replace("*", "")
+    bib_keys = cite.split(",")
 
     return bib_keys
 
 
 def empty_citation(keys):
-    return keys == ['']
+    return keys == [""]
 
 
 def create_bib_entries(bib_keys):
@@ -80,7 +74,7 @@ def create_bib_entries(bib_keys):
         try:
             bib_entry = bib[bib_key]
         except KeyError:
-            print('No reference for {}'.format(bib_key))
+            print("No reference for {}".format(bib_key))
             continue
 
         bib_entry.abbreviate_journal(abbs)
@@ -92,10 +86,10 @@ def create_bib_entries(bib_keys):
 
 
 def write_bibfile(bib_entries, filename):
-    bibstring = '\n\n'.join(bib_entries)
-    with open(filename, 'w') as out:
+    bibstring = "\n\n".join(bib_entries)
+    with open(filename, "w") as out:
         out.write(bibstring)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
